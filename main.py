@@ -5,11 +5,15 @@ import random
 
 delay = 0.1
 
+# Score
+score = 0
+high_score = 0
+
 #1 These set of codes are used to set up the screen
 window = turtle.Screen()
 window.title("Retro Snake Game by @PrinceXXIV")
 window.bgcolor("Gold")
-window.setup(width=600, height=550)
+window.setup(width=500, height=500)
 window.tracer(0) #This turns off any screen update
 
 #2 Snake head
@@ -32,6 +36,16 @@ food.goto(0,100)
 # 4
 segments = []
 
+#7 Pen - this is to setup the scoreboard
+pen = turtle.Turtle()
+pen.speed(0)
+pen.shape("square")
+pen.color("green")
+pen.penup()
+pen.hideturtle()
+pen.goto(0, 200)
+pen.write("Score : 0  High Score : 0", align="center", font=("Courier", 24, "normal"))
+
 
 #2 Functions
 def move():
@@ -52,16 +66,20 @@ def move():
         snakehead.setx(x - 20)
 
 def go_up():
-    snakehead.direction = "up"
+  if snakehead.direction != "down" :  
+      snakehead.direction = "up"
 
 def go_down():
-    snakehead.direction = "down"
+  if snakehead.direction != "up" :
+      snakehead.direction = "down"
 
 def go_right():
-    snakehead.direction = "right"
+  if snakehead.direction != "left" :
+      snakehead.direction = "right"
 
 def go_left():
-    snakehead.direction = "left"
+  if snakehead.direction != "right" :
+      snakehead.direction = "left"
 
 # Since the "def" 's are functions we need to bind these to the keyboard, so that the snake moves according to the keyboard arrows - connecting a key press to a particular function
 
@@ -74,16 +92,24 @@ window.onkeypress(go_right,"Right")
 #Main game Loop
 
 #5 Check for collision with the border
-if snakehead.xcor()>270 or snakehead.xcor()<-270 or snakehead.ycor()>270 or snakehead.ycor()<-270:
-    time.sleep(1)
-    snakehead.goto(0,0)
-    snakehead.direction = "stop"
+
+if snakehead.xcor()>250 or snakehead.xcor()<-250 or snakehead.ycor()>250 or snakehead.ycor()<-250:
+        time.sleep(1)
+        snakehead.goto(0,0)
+        snakehead.direction = "stop"
+
 #5 Hide segments if collision occurs
 for segment in segments:
-    segment.goto(1000, 1000)
+     segment.goto(1000, 1000)
 
 #5 Clear the segment list
 segments.clear()
+
+# Reset the score
+score = 0
+
+# Reset the delay
+delay = 0.1
 
 while True:
     window.update()
@@ -93,8 +119,8 @@ while True:
 
     if snakehead.distance(food) < 20:
       #3 Move the food to a random spot on the screen
-      x = random.randint(-290,290)
-      y = random.randint(-290,290)
+      x = random.randint(-250,250)
+      y = random.randint(-250,250)
       food.goto(x, y)
 
     #4 add a segment
@@ -104,6 +130,18 @@ while True:
       new_segment.color("brown")
       new_segment.penup()
       segments.append(new_segment)
+
+    #Shorten delay
+      delay -= 0.001
+
+    #7 Increase in score
+      score += 10
+
+    if score > high_score :
+        high_score = score
+    
+    pen.clear()
+    pen.write("Score: {} | High Score: {}".format(score, high_score), align="center", font=("Courier", "24", "normal"))
 
     #4 Move the end segments first in reverse order
     for index in range(len(segments)-1, 0, -1):
@@ -116,6 +154,30 @@ while True:
         y = snakehead.ycor()
         segments[0].goto(x,y)
     move()
+
+    #6 Check for head collisions with the body segments
+    for segment in segments:
+        if segment.distance(snakehead) < 20:
+          time.sleep(1)
+          snakehead.goto(0,0)
+          snakehead.direction = "stop"
+
+          #5 Hide segments if collision occurs
+          for segment in segments:
+              segment.goto(1000, 1000)
+
+          #5 Clear the segment list
+          segments.clear()
+
+          #7 Reset the score
+          score = 0
+
+          #Reset the delay
+          delay = 0.1
+
+          #Update the score display
+          pen.clear()
+          pen.write("Score: {} High Score: {}".format(score, high_score), align="center", font=("Courier", "24", "normal"))
 
     time.sleep(delay)
 
